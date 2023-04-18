@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<!--
+created with bing chat ai using the following prompt:
+write an html page with embedded javascript that plays conway's game of life. the page should have a black background, the game board should be canvas with 1cm cells made of a grid of white lines. each cell should be a red circle that only appears when it is alive and should have no outline. the game board should be randomly populated with cells when it starts, and there should be a chance that a special game of life shape appears, like an oscilator or spaceship. the game should restart when it ends and loop forever. the canvas should fit to the screen.
+make the circles for each cell gradiant colors
+
+modified by a human to make the randomized gradient for all cells static for each game
+-->
+
+<html>
+<head>
+    <title>Conway's Game of Life</title>
+    <style>
+        body {
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size to fit screen
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Set cell size in pixels (1cm)
+        //const cellSize = 37.8;
+        const cellSize = 12;
+
+        // Calculate number of rows and columns
+        const rows = Math.floor(canvas.height / cellSize);
+        const cols = Math.floor(canvas.width / cellSize);
+
+        // Create 2D array to represent game board
+        let board = [];
+        for (let i = 0; i < rows; i++) {
+            let row = [];
+            for (let j = 0; j < cols; j++) {
+                row.push(0);
+            }
+            board.push(row);
+        }
+
+	
+	    // List of colors
+            let colors = ['red', 'blue', 'green', 'yellow', 'cyan', 'purple', 'magenta', 'black'];
+
+            // Randomly select two colors from the list
+            let color1 = colors[Math.floor(Math.random() * colors.length)];
+            let color2 = colors[Math.floor(Math.random() * colors.length)];
+        // Function to draw game board
+        function drawBoard() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid lines
+            ctx.strokeStyle = 'black';
+            for (let i = 0; i < rows; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * cellSize);
+                ctx.lineTo(canvas.width, i * cellSize);
+                ctx.stroke();
+            }
+            for (let j = 0; j < cols; j++) {
+                ctx.beginPath();
+                ctx.moveTo(j * cellSize, 0);
+                ctx.lineTo(j * cellSize, canvas.height);
+                ctx.stroke();
+            }
+
+                //// Draw cells
+                //for (let i = 0; i < rows; i++) {
+                //    for (let j = 0; j < cols; j++) {
+                //        if (board[i][j] === 1) {
+                //            let x = j * cellSize + cellSize / 2;
+                //            let y = i * cellSize + cellSize / 2;
+                //            let radius = cellSize / 2 - 1;
+                //            ctx.fillStyle = 'lime';
+                //            ctx.beginPath();
+                //            ctx.arc(x, y, radius, 0, Math.PI * 2);
+                //            ctx.fill();
+                //        }
+                //    }
+                // }
+       
+                // Draw cells
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        if (board[i][j] === 1) {
+                        let x = j * cellSize + cellSize / 2;
+                        let y = i * cellSize + cellSize / 2;
+                        let radius = cellSize / 2 - 1;
+
+                        // Create gradient fill
+                        let gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                        // gradient.addColorStop(0, 'yellow');
+                        // gradient.addColorStop(1, 'purple');
+
+                        // List of colors
+                        //let colors = ['red', 'blue', 'green', 'yellow', 'cyan', 'purple', 'magenta', 'black'];
+
+                        // Randomly select two colors from the list
+                        //let color1 = colors[Math.floor(Math.random() * colors.length)];
+                        //let color2 = colors[Math.floor(Math.random() * colors.length)];
+                            
+                        gradient.addColorStop(0, color1);
+                        gradient.addColorStop(1, color2);
+
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(x, y, radius, 0, Math.PI * 2);
+                        ctx.fill();
+                }
+            }
+        }
+
+	}
+
+        // Function to update game board based on Game of Life rules
+        function updateBoard() {
+            let newBoard = JSON.parse(JSON.stringify(board));
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    let neighbors = countNeighbors(i,j);
+
+                    if (board[i][j] === 1 && neighbors < 2) { 
+                        newBoard[i][j] =                        0;
+                    } else if (board[i][j] === 1 && neighbors > 3) {
+                        newBoard[i][j] = 0;
+                    } else if (board[i][j] === 0 && neighbors === 3) {
+                        newBoard[i][j] = 1;
+                    }
+                }
+            }
+
+            board = newBoard;
+        }
+
+        // Function to count number of alive neighbors for a given cell
+        function countNeighbors(row, col) {
+            let count = 0;
+
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue;
+
+                    let newRow = row + i;
+                    let newCol = col + j;
+
+                    if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
+                        count += board[newRow][newCol];
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        // Function to randomly populate game board
+        function populateBoard() {
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    board[i][j] = Math.round(Math.random());
+                }
+            }
+
+            // Chance to add special Game of Life shape
+            if (Math.random() < 0.5) {
+                let shape = getShape();
+                let row = Math.floor(Math.random() * (rows - shape.length));
+                let col = Math.floor(Math.random() * (cols - shape[0].length));
+
+                for (let i = 0; i < shape.length; i++) {
+                    for (let j = 0; j < shape[i].length; j++) {
+                        board[row + i][col + j] = shape[i][j];
+                    }
+                }
+            }
+        }
+
+        // Function to get a random special Game of Life shape
+        function getShape() {
+            let shapes = [
+                [
+                    [0,1,1],
+                    [1,1,0],
+                    [0,1,0]
+                ],
+                [
+                    [1,1],
+                    [1,1]
+                ],
+                [
+                    [0,1],
+                    [1,1]
+                ],
+                [
+                    [0,1],
+                    [1,1],
+                    [0,1]
+                ]
+            ];
+
+            return shapes[Math.floor(Math.random() * shapes.length)];
+        }
+
+        // Populate game board and start game loop
+        populateBoard();
+        setInterval(() => {
+            drawBoard();
+            updateBoard();
+        }, 150);
+    </script>
+</body>
+</html>
+
