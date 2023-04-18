@@ -1,5 +1,7 @@
 # Conway's Game of Life
 
+Try it here: [https://htmlpreview.github.io/?https://raw.githubusercontent.com/chadpierce/game-of-life/main/life.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/chadpierce/game-of-life/main/life.html)
+
 Javascript version of Conway's Game of Life written by Bing Chat AI.  
 
 This was an experiment to help learn how to use the AI to assist in writing code.  
@@ -11,4 +13,6 @@ write an html page with embedded javascript that plays conway's game of life. th
 make the circles for each cell gradiant colors
 ```
 
-It was then modified by a human to make the randomized gradient for all cells static for each game because the original code would randomize all of the cells in the same game like confetti. 
+It was then modified by a human to make the randomized gradient for all cells static for each game because the original code would randomize all of the cells in the same game like confetti.   
+
+There is a bug where if both the main and secondary color are black you don't see anything!
